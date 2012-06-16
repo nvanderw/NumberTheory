@@ -1,6 +1,5 @@
-{- carmichael.hs - Search for Carmichael numbers, non-primes which satisfy
- - Fermat's Little Theorem, that a^n = a (mod n), where a and n are coprime. -}
-
+{- |Tests Fermat's little theorem on composite numbers in parallel, printing
+ - out Carmichael numbers -}
 import NumberTheory.Core
 import Control.Parallel.Strategies
 import System.IO
