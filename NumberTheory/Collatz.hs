@@ -1,3 +1,18 @@
+{- For a given natural number n, divide n by two if n is even, or multiply by
+ - three and add one if n is odd, and repeat. For instance, the sequence we
+ - get for 3 is:
+ -
+ - 3 -> 10 -> 5 -> 16 -> 8 -> 4 -> 2 -> 1
+ -
+ - The Collatz conjecture states that, for any starting value of n, this
+ - sequence will terminate.
+ -
+ - Given a maximum value N, this program searches all values n <= N for the
+ - longest such Collatz chain, and yields its length and intermediate values.
+ - It does so in parallel using Haskell's parallel evaluation strategies,
+ - dramatically increasing its CPU utilization on multi-core machines.
+ -}
+
 import Control.Arrow
 import Control.Parallel
 import Control.Parallel.Strategies
