@@ -1,7 +1,10 @@
 module NumberTheory.MillerRabin (isPrime, primes) where
 import NumberTheory.Core
+
 import Control.Monad
 import Control.Monad.State.Lazy
+import Control.Parallel.Strategies
+
 import Data.List
 import System.Random
 
@@ -59,5 +62,6 @@ isPrime numtests n = do
 -- |Given how many random coprimes to choose, yields an infinite list of
 -- prime numbers in the (State g) monad.
 primes :: (RandomGen g) => Int -> State g [Integer]
-primes numtests = mapM (isPrime numtests) ([3..] :: [Integer]) >>=
-    (return . (2:) . map fst . filter snd . zip [3..])
+primes numtests = do
+    arePrimes <- mapM (isPrime numtests) ([3..] :: [Integer])
+    return . (2:) . map fst . filter snd . zip [3..] $ using arePrimes (parTraversable rseq)
