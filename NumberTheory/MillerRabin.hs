@@ -29,10 +29,8 @@ isWitness a n = isComposite intermediates
     -- If we see any cases where the square root of 1 is neither -1 nor 1,
     -- the input is known to be composite. Otherwise, it may be composite or
     -- prime.
-    isComposite (x:y:xs) = if ((x /= (n - 1)) && (x /= 1) && (y == 1))
-        then True
-        else isComposite (y:xs)
-    isComposite [x] = if x /= 1 then True else False
+    isComposite (x:y:xs) = (x /= (n - 1)) && (x /= 1) && (y == 1) || isComposite (y:xs)
+    isComposite [x] = x /= 1
 
 -- For a number m, gets a random number in the interval (1, m) which is
 -- coprime to m
@@ -41,9 +39,9 @@ randomCoprime m = do
     gen <- get
     let (n, gen') = randomR (2, m - 1) gen
     put gen'
-    if (gcd m n) == 1
-        then return n
-        else randomCoprime m
+    if gcd m n == 1
+      then return n
+      else randomCoprime m
 
 -- |Given a number of random coprime witnesses to test and a number,
 -- yields a boolean in the (State g) monad which is False iff the number
@@ -51,13 +49,10 @@ randomCoprime m = do
 isPrime :: (Integral a, Random a, RandomGen g) => Int -> a -> State g Bool
 isPrime numtests n = do
     -- Get numtests possible witnesses for n
-    coprimes <- sequence . replicate numtests $ randomCoprime n
-    if or . map (\wit -> isWitness wit n) $ coprimes
-        then return False
-        else return True
+    coprimes <- replicateM numtests $ randomCoprime n
+    return . not $ any (`isWitness` n) coprimes
 
 -- |Given how many random coprimes to choose, yields an infinite list of
 -- prime numbers in the (State g) monad.
 primes :: (RandomGen g) => Int -> State g [Integer]
-primes numtests = mapM (isPrime numtests) ([3..] :: [Integer]) >>=
-    (return . (2:) . map fst . filter snd . zip [3..])
+primes numtests = liftM (2:) $ filterM (isPrime numtests) [3..]
